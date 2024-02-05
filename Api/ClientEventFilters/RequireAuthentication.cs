@@ -10,8 +10,7 @@ public class RequireAuthenticationAttribute : BaseEventFilter
 {
     public override Task Handle<T>(IWebSocketConnection socket, T dto)
     {
-        var state = ServiceLocator.ServiceProvider.GetService<WebSocketStateService>();
-        if (!state!.GetClient(socket.ConnectionInfo.Id).IsAuthenticated)
+        if (!WebSocketStateService.GetClient(socket.ConnectionInfo.Id).IsAuthenticated)
             throw new AuthenticationException("Client is not authenticated!");
         return Task.CompletedTask;
     }

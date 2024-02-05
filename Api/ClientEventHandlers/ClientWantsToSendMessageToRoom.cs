@@ -22,19 +22,18 @@ public class ClientWantsToSendMessageToRoomDto : BaseDto
 [ValidateDataAnnotations]
 [RequireAuthentication]
 public class ClientWantsToSendMessageToRoom(
-    ChatRepository chatRepository,
-    WebSocketStateService stateService)
+    ChatRepository chatRepository)
     : BaseEventHandler<ClientWantsToSendMessageToRoomDto>
 {
     public override async Task Handle(ClientWantsToSendMessageToRoomDto dto, IWebSocketConnection socket)
     {
-        var topic = stateService.GetRoomsForClient(socket.ConnectionInfo.Id).Contains(dto.roomId + ToString());
+        var topic = WebSocketStateService.GetRoomsForClient(socket.ConnectionInfo.Id).Contains(dto.roomId );
         if (!topic)
             throw new Exception("You are not in this room");
 
 
-        var insertMessageParams = new InsertMessageParams(dto.messageContent, DateTimeOffset.Now,
-            stateService.GetClient(socket.ConnectionInfo.Id).User.id, dto.roomId);
+        var insertMessageParams = new InsertMessageParams(dto.messageContent, DateTimeOffset.UtcNow,
+            WebSocketStateService.GetClient(socket.ConnectionInfo.Id).User.id, dto.roomId);
         var insertedMessage = chatRepository.InsertMessage(insertMessageParams);
         var messageWithUserInfo = new MessageWithSenderEmail
         {
@@ -43,9 +42,9 @@ public class ClientWantsToSendMessageToRoom(
             timestamp = insertedMessage.timestamp,
             messageContent = insertedMessage.messageContent,
             id = insertedMessage.id,
-            email = stateService.GetClient(socket.ConnectionInfo.Id).User.email
+            email = WebSocketStateService.GetClient(socket.ConnectionInfo.Id).User.email
         };
-        stateService.BroadcastMessage(dto.roomId.ToString(), new ServerBroadcastsMessageToClientsInRoom
+        WebSocketStateService.BroadcastMessage(dto.roomId, new ServerBroadcastsMessageToClientsInRoom
         {
             message = messageWithUserInfo,
             roomId = dto.roomId

@@ -18,22 +18,21 @@ public class ClientWantsToEnterRoomDto : BaseDto
 [RequireAuthentication]
 [ValidateDataAnnotations]
 public class ClientWantsToEnterRoom(
-    ChatRepository chatRepository,
-    WebSocketStateService stateService) : BaseEventHandler<ClientWantsToEnterRoomDto>
+    ChatRepository chatRepository) : BaseEventHandler<ClientWantsToEnterRoomDto>
 {
     public override Task Handle(ClientWantsToEnterRoomDto dto, IWebSocketConnection socket)
     {
-        stateService.JoinRoom(socket.ConnectionInfo.Id, dto.roomId.ToString());
+        WebSocketStateService.JoinRoom(socket.ConnectionInfo.Id, dto.roomId);
         socket.SendDto(new ServerAddsClientToRoom
         {
             messages = chatRepository.GetPastMessages(new GetPastMessagesParams(dto.roomId)),
-            liveConnections = stateService.GetClientsInRoom(dto.roomId + ToString()).Count,
+            liveConnections = WebSocketStateService.GetClientsInRoom(dto.roomId).Count,
             roomId = dto.roomId
         });
-        stateService.BroadcastMessage(dto.roomId.ToString(), new ServerNotifiesClientsInRoomSomeoneHasJoinedRoom
+        WebSocketStateService.BroadcastMessage(dto.roomId, new ServerNotifiesClientsInRoomSomeoneHasJoinedRoom
         {
             message = "Client joined the room!",
-            user = stateService.GetClient(socket.ConnectionInfo.Id).User,
+            user = WebSocketStateService.GetClient(socket.ConnectionInfo.Id).User,
             roomId = dto.roomId
         });
 

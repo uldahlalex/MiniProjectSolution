@@ -20,7 +20,6 @@ public class ClientWantsToAuthenticateWithJwtDto : BaseDto
 [ValidateDataAnnotations]
 public class ClientWantsToAuthenticateWithJwt(
     ChatRepository chatRepository,
-    WebSocketStateService stateService,
     TokenService tokenService)
     : BaseEventHandler<ClientWantsToAuthenticateWithJwtDto>
 {
@@ -30,8 +29,8 @@ public class ClientWantsToAuthenticateWithJwt(
         var user = chatRepository.GetUser(new FindByEmailParams(claims["email"]));
         if (user.isbanned)
             throw new AuthenticationException("User is banned");
-
-        stateService.GetClient(socket.ConnectionInfo.Id).IsAuthenticated = true;
+        WebSocketStateService.GetClient(socket.ConnectionInfo.Id).User = user;
+        WebSocketStateService.GetClient(socket.ConnectionInfo.Id).IsAuthenticated = true;
         socket.SendDto(new ServerAuthenticatesUserFromJwt());
     }
 }

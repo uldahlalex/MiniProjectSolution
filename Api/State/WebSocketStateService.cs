@@ -7,33 +7,30 @@ using Serilog;
 
 namespace Api.State;
 
-public class WsWithMetadata(IWebSocketConnection connection)
+public  class WsWithMetadata(IWebSocketConnection connection)
 {
     public IWebSocketConnection Connection { get; set; } = connection;
     public bool IsAuthenticated { get; set; } = false;
     public EndUser? User { get; set; }
 }
 
-public class WebSocketStateService
+public static class WebSocketStateService
 {
-    private readonly Dictionary<Guid, WsWithMetadata> _clients = new();
-    private readonly Dictionary<Guid, HashSet<string>> _clientToRooms = new();
-    private readonly Dictionary<string, HashSet<Guid>> _roomsToClients = new();
+    private static readonly Dictionary<Guid, WsWithMetadata> _clients = new();
+    private static readonly Dictionary<Guid, HashSet<int>> _clientToRooms = new();
+    private static readonly Dictionary<int, HashSet<Guid>> _roomsToClients = new();
 
-    public WsWithMetadata GetClient(Guid clientId)
+    public static WsWithMetadata GetClient(Guid clientId)
     {
-        Log.Information(JsonSerializer.Serialize(_clients.Keys.ToList()), "Connected clients:");
         return _clients[clientId];
     }
 
-    public void AddClient(Guid clientId, IWebSocketConnection connection)
+    public static void AddClient(Guid clientId, IWebSocketConnection connection)
     {
         _clients.TryAdd(clientId, new WsWithMetadata(connection));
-        //log all connections
-        Log.Information(JsonSerializer.Serialize(_clients.Keys.ToList()), "Connected clients:");
     }
 
-    public void RemoveClient(Guid clientId)
+    public static void RemoveClient(Guid clientId)
     {
         if (_clientToRooms.TryGetValue(clientId, out var rooms))
         {
@@ -49,38 +46,39 @@ public class WebSocketStateService
         _clients.Remove(clientId);
     }
 
-    public void JoinRoom(Guid clientId, string roomId)
+    public static void JoinRoom(Guid clientId, int roomId)
     {
         if (!_roomsToClients.ContainsKey(roomId)) _roomsToClients[roomId] = new HashSet<Guid>();
 
         _roomsToClients[roomId].Add(clientId);
 
-        if (!_clientToRooms.ContainsKey(clientId)) _clientToRooms[clientId] = new HashSet<string>();
+        if (!_clientToRooms.ContainsKey(clientId)) _clientToRooms[clientId] = new HashSet<int>();
 
         _clientToRooms[clientId].Add(roomId);
     }
 
    
 
-    public void BroadcastMessage(string roomId, BaseDto dto)
+    public static void BroadcastMessage<T>(int roomId, T dto) where T : BaseDto
     {
         if (_roomsToClients.TryGetValue(roomId, out var clients))
             foreach (var clientId in clients)
                 if (_clients.TryGetValue(clientId, out var connection))
                     connection.Connection.SendDto(dto);
     }
+    
 
-    public List<IWebSocketConnection> GetClientsInRoom(string room)
+    public static List<IWebSocketConnection> GetClientsInRoom(int room)
     {
         return _roomsToClients.TryGetValue(room, out var clients)
             ? clients.Select(clientId => _clients[clientId].Connection).ToList()
             : new List<IWebSocketConnection>();
     }
 
-    public List<string> GetRoomsForClient(Guid clientId)
+    public static List<int> GetRoomsForClient(Guid clientId)
     {
         return _clientToRooms.TryGetValue(clientId, out var rooms)
             ? rooms.ToList()
-            : new List<string>();
+            : new List<int>();
     }
 }

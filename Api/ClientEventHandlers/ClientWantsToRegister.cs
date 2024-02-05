@@ -22,7 +22,6 @@ public class ClientWantsToRegisterDto : BaseDto
 public class ClientWantsToRegister(
     ChatRepository chatRepository,
     CredentialService credentialService,
-    WebSocketStateService stateService,
     TokenService tokenService
 ) : BaseEventHandler<ClientWantsToRegisterDto>
 {
@@ -34,7 +33,8 @@ public class ClientWantsToRegister(
         var hash = credentialService.Hash(dto.password, salt);
         var user = chatRepository.InsertUser(new InsertUserParams(dto.email, hash, salt));
         var token = tokenService.IssueJwt(user);
-        stateService.GetClient(socket.ConnectionInfo.Id).IsAuthenticated = true;
+        WebSocketStateService.GetClient(socket.ConnectionInfo.Id).IsAuthenticated = true;
+        WebSocketStateService.GetClient(socket.ConnectionInfo.Id).User = user;
         socket.SendDto(new ServerAuthenticatesUser { jwt = token });
         return Task.CompletedTask;
     }
