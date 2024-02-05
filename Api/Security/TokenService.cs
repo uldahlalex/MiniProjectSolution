@@ -1,12 +1,12 @@
 using System.Security.Authentication;
-using Externalities.QueryModels;
+using Api.Models.QueryModels;
 using JWT;
 using JWT.Algorithms;
 using JWT.Serializers;
 using Newtonsoft.Json;
 using Serilog;
 
-namespace Api;
+namespace Api.Security;
 
 public class TokenService
 {
@@ -26,7 +26,7 @@ public class TokenService
             throw new InvalidOperationException("User authentication succeeded, but could not create token");
         }
     }
-    
+
     public Dictionary<string, string> ValidateJwtAndReturnClaims(string jwt)
     {
         try

@@ -1,4 +1,4 @@
-namespace Externalities.ParameterModels;
+namespace Api.Models.ParameterModels;
 
 public class InsertMessageParams(string? messageContent, DateTimeOffset timestamp, int sender, int room)
 {

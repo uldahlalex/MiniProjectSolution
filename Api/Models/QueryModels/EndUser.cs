@@ -1,4 +1,4 @@
-namespace Externalities.QueryModels;
+namespace Api.Models.QueryModels;
 
 public class EndUser
 {

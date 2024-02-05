@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Security.Authentication;
-using Api;
 using Api.Helpers.cs;
-using Api.ServerEvents;
-using api.State;
+using Api.Models.ServerEvents;
+using Api.Repositories;
+using Api.Security;
+using Api.State;
 using Fleck;
 using lib;
 using Serilog;
@@ -19,15 +20,20 @@ builder.Services.AddSingleton<CredentialService>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddSingleton<WebSocketStateService>();
 
-builder.Services.AddNpgsqlDataSource(ChatRepository.ProperlyFormattedConnectionString, sourceBuilder =>
-{
-    sourceBuilder.EnableParameterLogging();
-});
+builder.Services.AddNpgsqlDataSource(ChatRepository.ProperlyFormattedConnectionString,
+    sourceBuilder => { sourceBuilder.EnableParameterLogging(); });
 builder.Services.AddSingleton<ChatRepository>();
 var services = builder.FindAndInjectClientEventHandlers(Assembly.GetExecutingAssembly());
 
+// Build the IServiceProvider from the DI container here
+var serviceProvider = builder.Services.BuildServiceProvider();
+// Set the IServiceProvider in the ServiceLocator
+ServiceLocator.SetServiceProvider(serviceProvider);
+
+// Use the built serviceProvider to resolve services
 var app = builder.Build();
-var state = app.Services.GetService<WebSocketStateService>()!;
+app.Services.GetService<ChatRepository>().ExecuteRebuildFromSqlScript();
+var state = serviceProvider.GetService<WebSocketStateService>()!;
 var server = new WebSocketServer("ws://0.0.0.0:8181");
 server.RestartAfterListenError = true;
 server.Start(socket =>
@@ -42,15 +48,19 @@ server.Start(socket =>
         }
         catch (Exception e)
         {
-            if (app.Environment.IsProduction() && e is not ValidationException or AuthenticationException)
+            Log.Error(e, "Global exception handler");
+            if(app.Environment.IsProduction() && (e is ValidationException || e is AuthenticationException))
             {
-                Log.Error(e, "Global exception handler");
-                socket.SendDto(new ServerSendsErrorMessageDto(){message = "Something went wrong"});
+                socket.SendDto(new ServerSendsErrorMessageToClient()
+                {
+                    errorMessage = "Something went wrong",
+                    receivedMessage = message
+                });
             }
             else
             {
-                Log.Error(e, "Global exception handler");
-                socket.SendDto(new ServerSendsErrorMessageDto(){message = e.Message});
+                socket.SendDto(new ServerSendsErrorMessageToClient
+                                    { errorMessage = e.Message, receivedMessage = message });
             }
         }
     };

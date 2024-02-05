@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Serilog;
 
-namespace Api;
+namespace Api.Security;
 
 public class CredentialService
 {
@@ -13,7 +13,7 @@ public class CredentialService
         keyGenerator.GetBytes(bytes);
         return Convert.ToBase64String(bytes);
     }
-    
+
     public string Hash(string password, string salt)
     {
         try

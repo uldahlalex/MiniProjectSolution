@@ -1,4 +1,4 @@
-namespace Externalities.ParameterModels;
+namespace Api.Models.ParameterModels;
 
 public class GetPastMessagesParams(int room, int lastMessageId = int.MaxValue)
 {

@@ -1,9 +1,12 @@
-namespace Externalities.QueryModels;
+namespace Api.Models.QueryModels;
 
-public class Message
+public class InsertMessageResult
 {
     public int id { get; set; }
-    
+
+    /// <summary>
+    ///     Column name in db: messagecontent
+    /// </summary>
     public string? messageContent { get; set; }
 
     public DateTimeOffset timestamp { get; set; }

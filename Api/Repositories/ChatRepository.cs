@@ -1,14 +1,24 @@
+using Api.Models.ParameterModels;
+using Api.Models.QueryModels;
 using Dapper;
-using Externalities.ParameterModels;
-using Externalities.QueryModels;
 using Npgsql;
-using Npgsql.Replication.PgOutput.Messages;
 
-namespace Api;
+namespace Api.Repositories;
 
 public class ChatRepository(NpgsqlDataSource source)
 {
-      // pgSQL: SELECT email, messagecontent, sender, messages.id as id, timestamp, room FROM chat.messages join chat.enduser on chat.messages.sender = chat.enduser.id where chat.messages.id<1 and room=1 ORDER BY timestamp DESC LIMIT 5;
+    private static readonly Uri Uri = new(Environment.GetEnvironmentVariable("FULLSTACK_PG_CONN_PRODUCTION")!);
+
+    public static readonly string
+        ProperlyFormattedConnectionString = string.Format(
+            "Server={0};Database={1};User Id={2};Password={3};Port={4};Pooling=true;MaxPoolSize=3",
+            Uri.Host,
+            Uri.AbsolutePath.Trim('/'),
+            Uri.UserInfo.Split(':')[0],
+            Uri.UserInfo.Split(':')[1],
+            Uri.Port > 0 ? Uri.Port : 5432);
+
+    // pgSQL: SELECT email, messagecontent, sender, messages.id as id, timestamp, room FROM chat.messages join chat.enduser on chat.messages.sender = chat.enduser.id where chat.messages.id<1 and room=1 ORDER BY timestamp DESC LIMIT 5;
     public IEnumerable<MessageWithSenderEmail> GetPastMessages(GetPastMessagesParams getPastMessagesParams)
     {
         using var conn = source.OpenConnection();
@@ -27,21 +37,21 @@ ORDER BY timestamp DESC LIMIT 5;", getPastMessagesParams);
     }
 
     // pgSQL: INSERT INTO chat.messages (timestamp, sender, room, messageContent) values (now(), 1, 1, 'test') returning *;
-    public Message InsertMessage(InsertMessageParams insertMessageParams)
+    public InsertMessageResult InsertMessage(InsertMessageParams insertMessageParams)
     {
         using var conn = source.OpenConnection();
-        return conn.QueryFirst<Message>(@$"
+        return conn.QueryFirst<InsertMessageResult>(@$"
 INSERT INTO chat.messages (timestamp, sender, room, messageContent) 
-values (@{nameof(Message.timestamp)}, 
-        @{nameof(Message.sender)}, 
-        @{nameof(Message.room)},
-        @{nameof(Message.messageContent)}) 
+values (@{nameof(InsertMessageResult.timestamp)}, 
+        @{nameof(InsertMessageResult.sender)}, 
+        @{nameof(InsertMessageResult.room)},
+        @{nameof(InsertMessageResult.messageContent)}) 
 returning 
-    timestamp as {nameof(Message.timestamp)}, 
-    sender as {nameof(Message.sender)}, 
-    room as {nameof(Message.room)}, 
-    messageContent as {nameof(Message.messageContent)},
-    id as {nameof(Message.id)};", insertMessageParams);
+    timestamp as {nameof(InsertMessageResult.timestamp)}, 
+    sender as {nameof(InsertMessageResult.sender)}, 
+    room as {nameof(InsertMessageResult.room)}, 
+    messageContent as {nameof(InsertMessageResult.messageContent)},
+    id as {nameof(InsertMessageResult.id)};", insertMessageParams);
     }
 
     // pgSQL: insert into chat.enduser (email, hash, salt, isbanned) values ('bla@bla.dk', 'Uhq6WdmkqE+b3R84tTzFAprKxAOto3vhUx0HBG4J524=', 'G/Xx5vBlRMrF+oZcQ1vXiQ==', false) returning *;
@@ -87,38 +97,10 @@ select count(*) from chat.enduser where email = @{nameof(findByEmailParams.email
                throw new KeyNotFoundException("Could not find user with email " + findByEmailParams.email);
     }
 
-    public bool IsMessageOwner(IsMessageOwnerParams isMessageOwnerParams)
-    {
-        using var conn = source.OpenConnection();
-        return conn.ExecuteScalar<int>(@"
-SELECT userid FROM chat.enduser 
-JOIN chat.messages m on enduser.id = m.sender 
-WHERE m.id = @messageid;", isMessageOwnerParams) == isMessageOwnerParams.userId;
-    }
-
-    public void DeleteMessage(DeleteMessageParams deleteMessageParams)
+  
+    public void ExecuteRebuildFromSqlScript(string? alternativeConnectionString = null)
     {
         using (var conn = source.OpenConnection())
-        {
-            conn.Execute("DELETE FROM chat.messages WHERE id = @messageid;", deleteMessageParams);
-        }
-    }
-    
-    private static readonly Uri Uri = new(Environment.GetEnvironmentVariable("FULLSTACK_PG_CONN_PRODUCTION")!);
-
-    public static readonly string
-        ProperlyFormattedConnectionString = string.Format(
-            "Server={0};Database={1};User Id={2};Password={3};Port={4};Pooling=true;MaxPoolSize=3",
-            Uri.Host,
-            Uri.AbsolutePath.Trim('/'),
-            Uri.UserInfo.Split(':')[0],
-            Uri.UserInfo.Split(':')[1],
-            Uri.Port > 0 ? Uri.Port : 5432);
-
-    public static void ExecuteRebuildFromSqlScript(string? alternativeConnectionString = null)
-    {
-        using (var conn = new NpgsqlConnection(alternativeConnectionString ??
-                                               Environment.GetEnvironmentVariable("FULLSTACK_PG_CONN")))
         {
             conn.Execute(@"
 /* 

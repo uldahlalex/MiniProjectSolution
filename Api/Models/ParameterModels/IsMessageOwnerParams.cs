@@ -1,4 +1,4 @@
-namespace Externalities.ParameterModels;
+namespace Api.Models.ParameterModels;
 
 public class IsMessageOwnerParams(int userId, int messageId)
 {
