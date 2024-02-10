@@ -10,52 +10,66 @@ using Fleck;
 using lib;
 using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console(
-        outputTemplate: "\n{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}\n")
-    .CreateLogger();
+namespace Api;
 
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddSingleton<CredentialService>();
-builder.Services.AddSingleton<TokenService>();
-
-builder.Services.AddNpgsqlDataSource(ChatRepository.ProperlyFormattedConnectionString,
-    sourceBuilder => { sourceBuilder.EnableParameterLogging(); });
-builder.Services.AddSingleton<ChatRepository>();
-var services = builder.FindAndInjectClientEventHandlers(Assembly.GetExecutingAssembly());
-
-
-var app = builder.Build();
-app.Services.GetService<ChatRepository>().ExecuteRebuildFromSqlScript();
-var server = new WebSocketServer("ws://0.0.0.0:8181");
-server.RestartAfterListenError = true;
-server.Start(socket =>
+public static class Startup
 {
-    socket.OnOpen = () => WebSocketStateService.AddClient(socket.ConnectionInfo.Id, socket);
-    socket.OnClose = () => WebSocketStateService.RemoveClient(socket.ConnectionInfo.Id);
-    socket.OnMessage = async message =>
+    public static void Main(string[] args)
     {
-        try
+        var webApp = Start(args);
+        webApp.Run();
+    }
+    
+    public static WebApplication Start(string[] args)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console(
+                outputTemplate: "\n{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}\n")
+            .CreateLogger();
+
+        var builder = WebApplication.CreateBuilder(args);
+        builder.Services.AddSingleton<CredentialService>();
+        builder.Services.AddSingleton<TokenService>();
+
+        builder.Services.AddNpgsqlDataSource(ChatRepository.ProperlyFormattedConnectionString,
+            sourceBuilder => { sourceBuilder.EnableParameterLogging(); });
+        builder.Services.AddSingleton<ChatRepository>();
+        var services = builder.FindAndInjectClientEventHandlers(Assembly.GetExecutingAssembly());
+
+
+        var app = builder.Build();
+        app.Services.GetService<ChatRepository>()!.ExecuteRebuildFromSqlScript();
+        var server = new WebSocketServer("ws://0.0.0.0:8181");
+        server.RestartAfterListenError = true;
+        server.Start(socket =>
         {
-            await app.InvokeClientEventHandler(services, socket, message);
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "Global exception handler");
-            if(app.Environment.IsProduction() && (e is ValidationException || e is AuthenticationException))
+            socket.OnOpen = () => WebSocketStateService.AddClient(socket.ConnectionInfo.Id, socket);
+            socket.OnClose = () => WebSocketStateService.RemoveClient(socket.ConnectionInfo.Id);
+            socket.OnMessage = async message =>
             {
-                socket.SendDto(new ServerSendsErrorMessageToClient()
+                try
                 {
-                    errorMessage = "Something went wrong",
-                    receivedMessage = message
-                });
-            }
-            else
-            {
-                socket.SendDto(new ServerSendsErrorMessageToClient
-                                    { errorMessage = e.Message, receivedMessage = message });
-            }
-        }
-    };
-});
-app.Run();
+                    await app.InvokeClientEventHandler(services, socket, message);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, "Global exception handler");
+                    if (app.Environment.IsProduction() && (e is ValidationException || e is AuthenticationException))
+                    {
+                        socket.SendDto(new ServerSendsErrorMessageToClient()
+                        {
+                            errorMessage = "Something went wrong",
+                            receivedMessage = message
+                        });
+                    }
+                    else
+                    {
+                        socket.SendDto(new ServerSendsErrorMessageToClient
+                            { errorMessage = e.Message, receivedMessage = message });
+                    }
+                }
+            };
+        });
+        return app;
+    }
+}

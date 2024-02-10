@@ -7,7 +7,7 @@ namespace Api.Repositories;
 
 public class ChatRepository(NpgsqlDataSource source)
 {
-    private static readonly Uri Uri = new(Environment.GetEnvironmentVariable("FULLSTACK_PG_CONN_PRODUCTION")!);
+    private static readonly Uri Uri = new(Environment.GetEnvironmentVariable("FULLSTACK_PG_CONN")!);
 
     public static readonly string
         ProperlyFormattedConnectionString = string.Format(

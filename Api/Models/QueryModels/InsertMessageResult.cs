@@ -3,10 +3,6 @@ namespace Api.Models.QueryModels;
 public class InsertMessageResult
 {
     public int id { get; set; }
-
-    /// <summary>
-    ///     Column name in db: messagecontent
-    /// </summary>
     public string? messageContent { get; set; }
 
     public DateTimeOffset timestamp { get; set; }
