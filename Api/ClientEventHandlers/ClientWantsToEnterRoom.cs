@@ -32,7 +32,7 @@ public class ClientWantsToEnterRoom(
         WebSocketStateService.BroadcastMessage(dto.roomId, new ServerNotifiesClientsInRoomSomeoneHasJoinedRoom
         {
             message = "Client joined the room!",
-            user = WebSocketStateService.GetClient(socket.ConnectionInfo.Id).User,
+            userEmail = WebSocketStateService.GetClient(socket.ConnectionInfo.Id).User.email,
             roomId = dto.roomId
         });
 
