@@ -14,6 +14,7 @@ import {RouterModule} from "@angular/router";
 import {DialogModule} from "primeng/dialog";
 import {ChipModule} from "primeng/chip";
 import {ClientWantsToSendMessageToRoom} from "../models/clientWantsToSendMessageToRoom";
+import ReconnectingWebSocket from "reconnecting-websocket";
 
 @Component({
   selector: 'app-root',
@@ -29,6 +30,7 @@ import {ClientWantsToSendMessageToRoom} from "../models/clientWantsToSendMessage
     <button (click)="enterRoom()">Enter room</button>
 
     <div *ngFor="let m of ws.roomsWithMessages | keyvalue">
+      Number of live connections: {{ws.roomsWithNumberOfConnections.get(m.key)!-1}}
       <h2>{{m.key}}</h2>
       <div *ngFor="let message of m.value">
         {{message.email}} said: {{message.messageContent}} at {{dateFromStr(message.timestamp)}}

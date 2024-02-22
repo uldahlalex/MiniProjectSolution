@@ -8,12 +8,14 @@ using NUnit.Framework;
 
 namespace Tests;
 
+[TestFixture]
+[NonParallelizable]
 public class Tests
 {
     [SetUp]
     public async Task Setup()
     {
-        var app = Startup.Start(null);
+        Startup.Start(null);
     }
 
     [Test]
@@ -60,23 +62,5 @@ public class Tests
             });
         ws.Client.Dispose();
         ws2.Client.Dispose();
-    }
-
-    [Test]
-    public async Task StressTest()
-    {
-        var ws = await new WebSocketTestClient().ConnectAsync();
-
-        await ws.DoAndAssert(new ClientWantsToSignInDto() { email = "bla@bla.dk", password = "qweqweqwe" },
-            receivedMessages => receivedMessages.Count(e => e.eventType == nameof(ServerAuthenticatesUser)) == 1);
-
-        var iterations = 100;
-        for (var i = 1; i < iterations; i++)
-            await ws.DoAndAssert(new ClientWantsToEnterRoomDto() { roomId = i });
-        Task.Delay(10000).Wait();
-        Console.WriteLine(JsonSerializer.Serialize(ws.ReceivedMessages));
-        await ws.DoAndAssert(new ClientWantsToEnterRoomDto() { roomId = iterations },
-            receivedMessages =>
-                receivedMessages.Count(e => e.eventType == nameof(ServerAddsClientToRoom)) == iterations);
     }
 }

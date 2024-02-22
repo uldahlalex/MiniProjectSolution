@@ -22,6 +22,7 @@ public class ClientWantsToEnterRoom(
 {
     public override Task Handle(ClientWantsToEnterRoomDto dto, IWebSocketConnection socket)
     {
+        
         WebSocketStateService.JoinRoom(socket.ConnectionInfo.Id, dto.roomId);
         socket.SendDto(new ServerAddsClientToRoom
         {

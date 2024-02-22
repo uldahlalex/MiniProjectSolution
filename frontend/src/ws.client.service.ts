@@ -15,19 +15,17 @@ export class WebSocketClientService {
 
 
   public roomsWithMessages: Map<number, Message[]> = new Map<number, Message[]>();
-  public roomsWithConnections: Map<number, number> = new Map<number, number>();
-
-
+  public roomsWithNumberOfConnections: Map<number, number> = new Map<number, number>();
 
 
   public socketConnection: WebsocketSuperclass;
 
   constructor(public messageService: MessageService) {
     this.socketConnection = new WebsocketSuperclass("ws://localhost:8181");
-    this.handleEvent()
+    this.handleEventsEmittedByTheServer()
   }
 
-  handleEvent() {
+  handleEventsEmittedByTheServer() {
     this.socketConnection.onmessage = (event) => {
       const data = JSON.parse(event.data) as BaseDto<any>;
       console.log("Received: " + JSON.stringify(data));
@@ -39,7 +37,7 @@ export class WebSocketClientService {
 
   ServerAddsClientToRoom(dto: ServerAddsClientToRoom) {
     this.roomsWithMessages.set(dto.roomId!, dto.messages!.reverse());
-    this.roomsWithConnections.set(dto.roomId!, dto.liveConnections!);
+    this.roomsWithNumberOfConnections.set(dto.roomId!, dto.liveConnections!);
   }
 
   ServerAuthenticatesUser(dto: ServerAuthenticatesUser) {
@@ -60,9 +58,9 @@ export class WebSocketClientService {
     this.messageService.add({
       life: 2000,
       summary: '🧨',
-      detail: "New user joined: " + dto.user?.email
+      detail: "New user joined: " + dto.userEmail
     });
-    this.roomsWithConnections.set(dto.roomId!, this.roomsWithConnections.get(dto.roomId!)! + 1);
+    this.roomsWithNumberOfConnections.set(dto.roomId!, this.roomsWithNumberOfConnections.get(dto.roomId!)! + 1);
   }
 
 
