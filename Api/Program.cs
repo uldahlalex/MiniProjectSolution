@@ -26,6 +26,7 @@ public static class Startup
             .WriteTo.Console(
                 outputTemplate: "\n{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}\n")
             .CreateLogger();
+        EnvSetup.SetupEnv();
 
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddSingleton<CredentialService>();

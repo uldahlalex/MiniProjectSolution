@@ -1,0 +1,25 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - run: cd Api && dotnet publish -c Release -o publish
+      - uses: AkhileshNS/heroku-deploy@v3.13.15
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          usedocker: false
+          appdir: "Api"
+        env:
+          HD_AZ_VISION: ${{secrets.HD_AZ_VISION}}
+          HD_AZ_CONTENT_FILTER: ${{secrets.HD_AZ_CONTENT_FILTER}}
+          HD_JWT_KEY: ${{secrets.HD_JWT_KEY_}}
+          HD_PG_CONN: ${{secrets.HD_PG_CONN}}

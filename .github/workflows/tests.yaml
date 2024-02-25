@@ -1,0 +1,17 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: cd Tests && dotnet test
+        env:
+            HD_AZ_VISION: ${{secrets.HD_AZ_VISION}}
+            HD_AZ_CONTENT_FILTER: ${{secrets.HD_AZ_CONTENT_FILTER}}
+            HD_JWT_KEY: ${{secrets.HD_JWT_KEY_}}
+            HD_PG_CONN: ${{secrets.HD_PG_CONN}}

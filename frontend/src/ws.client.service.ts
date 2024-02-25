@@ -9,6 +9,7 @@ import {ServerBroadcastsMessageToClientsInRoom} from "./models/serverBroadcastsM
 import {ServerSendsErrorMessageToClient} from "./models/serverSendsErrorMessageToClient";
 import {ServerNotifiesClientsInRoomSomeoneHasJoinedRoom} from "./models/serverNotifiesClientsInRoomSomeoneHasJoinedRoom";
 import {Message, Room} from "./models/entities";
+import {ServerSendsImageAnalysisToClient} from "./models/ServerSendsImageAnalysisToClient";
 
 @Injectable({providedIn: 'root'})
 export class WebSocketClientService {
@@ -68,5 +69,15 @@ export class WebSocketClientService {
     this.messageService.add({life: 2000, severity: 'error', summary: '⚠️', detail: dto.errorMessage}); //todo implement with err handler
   }
 
+  ServerSendsImageAnalysisToClient(dto: ServerSendsImageAnalysisToClient) {
+    var humanReadableMessage =
+      dto.result?.categories
+        .filter(a => a.score > 0.05)
+        .map(c => c.name);
+    if(humanReadableMessage && humanReadableMessage.length>0)
+      this.messageService.add({life: 2000, summary: '🔍', detail: "We're pretty sure theres: " + humanReadableMessage!.toString()+" in this image" });
+    else
+      this.messageService.add({life: 2000, summary: '🔍', detail: 'We could not"t find anything on this image'});
+  }
 
 }

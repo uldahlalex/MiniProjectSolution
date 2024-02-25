@@ -1,4 +1,5 @@
 using System.Security.Authentication;
+using Api.Helpers.cs;
 using Api.Models.QueryModels;
 using JWT;
 using JWT.Algorithms;
@@ -18,7 +19,7 @@ public class TokenService
             IJsonSerializer serializer = new JsonNetSerializer();
             IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
             IJwtEncoder encoder = new JwtEncoder(algorithm, serializer, urlEncoder);
-            return encoder.Encode(user, Environment.GetEnvironmentVariable("FULLSTACK_JWT_PRIVATE_KEY") ?? "alskjdhffffflisdjfnidssssjf948jfoiejfs9jv9s84roisjdmvlkxdjvcs4jfdslvjdsfls4jdlivjdslifs");
+            return encoder.Encode(user, Environment.GetEnvironmentVariable(ENV_VAR_KEYS.HD_JWT_KEY.ToString()) ?? "alskjdhffffflisdjfnidssssjf948jfoiejfs9jv9s84roisjdmvlkxdjvcs4jfdslvjdsfls4jdlivjdslifs");
         }
         catch (Exception e)
         {
@@ -36,7 +37,7 @@ public class TokenService
             IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
             IJwtValidator validator = new JwtValidator(serializer, provider);
             IJwtDecoder decoder = new JwtDecoder(serializer, validator, urlEncoder, new HMACSHA512Algorithm());
-            var json = decoder.Decode(jwt, Environment.GetEnvironmentVariable("FULLSTACK_JWT_PRIVATE_KEY") ?? "alskjdhffffflisdjfnidssssjf948jfoiejfs9jv9s84roisjdmvlkxdjvcs4jfdslvjdsfls4jdlivjdslifs");
+            var json = decoder.Decode(jwt, Environment.GetEnvironmentVariable(ENV_VAR_KEYS.HD_JWT_KEY.ToString()) ?? "alskjdhffffflisdjfnidssssjf948jfoiejfs9jv9s84roisjdmvlkxdjvcs4jfdslvjdsfls4jdlivjdslifs");
             return JsonConvert.DeserializeObject<Dictionary<string, string>>(json)!;
         }
         catch (Exception e)

@@ -1,20 +1,11 @@
 import {Component, inject} from '@angular/core';
 import {WebSocketClientService} from "../ws.client.service";
-import {FormControl, FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormControl} from "@angular/forms";
 import {ClientWantsToEnterRoom} from "../models/clientWantsToEnterRoom";
 import {ClientWantsToSignIn} from "../models/clientWantsToSignIn";
 import {ClientWantsToRegister} from "../models/clientWantsToRegister";
-import {CommonModule, KeyValuePipe, NgForOf} from "@angular/common";
-import {MessageModule} from "primeng/message";
-import {ToastModule} from "primeng/toast";
-import {MessagesModule} from "primeng/messages";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {BrowserModule} from "@angular/platform-browser";
-import {RouterModule} from "@angular/router";
-import {DialogModule} from "primeng/dialog";
-import {ChipModule} from "primeng/chip";
 import {ClientWantsToSendMessageToRoom} from "../models/clientWantsToSendMessageToRoom";
-import ReconnectingWebSocket from "reconnecting-websocket";
+import {ClientWantsToDetectImageObjects} from "../models/clientWantsToDetectImageObjects";
 
 @Component({
   selector: 'app-root',
@@ -38,6 +29,11 @@ import ReconnectingWebSocket from "reconnecting-websocket";
       <input [formControl]="messageContent"><button (click)="sendMessageToRoom(m.key)">Send message</button>
     </div>
 
+    <h1>Enter an image url to analyze</h1>
+    <input [formControl]="imgUrl">
+    <img style="max-height: 150px; width: auto;" [src]="imgUrl.value">
+    <button (click)="analyzeImage()">Analyze it!</button>
+
   `,
 })
 export class AppComponent {
@@ -47,6 +43,7 @@ export class AppComponent {
   email = new FormControl("");
   password = new FormControl("");
   messageContent = new FormControl("");
+  imgUrl = new FormControl("https://variety.com/wp-content/uploads/2021/07/Rick-Astley-Never-Gonna-Give-You-Up.png");
 
 
   enterRoom() {
@@ -67,5 +64,9 @@ export class AppComponent {
 
   dateFromStr(timestamp: string | undefined) {
     return new Date(timestamp!).toLocaleString();
+  }
+
+  analyzeImage() {
+    this.ws.socketConnection.sendDto(new ClientWantsToDetectImageObjects({url: this.imgUrl.value!}))
   }
 }

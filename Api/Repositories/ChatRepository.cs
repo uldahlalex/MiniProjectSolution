@@ -1,3 +1,4 @@
+using Api.Helpers.cs;
 using Api.Models.ParameterModels;
 using Api.Models.QueryModels;
 using Dapper;
@@ -7,7 +8,7 @@ namespace Api.Repositories;
 
 public class ChatRepository(NpgsqlDataSource source)
 {
-    private static readonly Uri Uri = new(Environment.GetEnvironmentVariable("FULLSTACK_PG_CONN")!);
+    private static readonly Uri Uri = new(Environment.GetEnvironmentVariable(ENV_VAR_KEYS.HD_PG_CONN.ToString())!);
 
     public static readonly string
         ProperlyFormattedConnectionString = string.Format(
