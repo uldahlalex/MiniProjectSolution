@@ -11,14 +11,3 @@ public enum ENV_VAR_KEYS
     JWT_KEY,
     PG_CONN
 }
-
-public class EnvSetup
-{
-    public static void SetupEnv()
-    {
-        foreach (var KEY in (ENV_VAR_KEYS[])Enum.GetValues(typeof(ENV_VAR_KEYS)))
-        {
-            Log.Information("ENV VAR: ''{0}'' = ''{1}''", KEY, Environment.GetEnvironmentVariable(KEY.ToString()) ?? "null");
-        }
-    }
-}

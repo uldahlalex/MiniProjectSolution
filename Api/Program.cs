@@ -28,7 +28,6 @@ public static class Startup
                 outputTemplate: "\n{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}\n")
             .CreateLogger();
         Log.Information(JsonSerializer.Serialize(Environment.GetEnvironmentVariables()));
-        EnvSetup.SetupEnv();
 
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddSingleton<CredentialService>();
@@ -39,7 +38,7 @@ public static class Startup
         builder.Services.AddSingleton<ChatRepository>();
         var services = builder.FindAndInjectClientEventHandlers(Assembly.GetExecutingAssembly());
 
-
+        builder.WebHost.UseUrls("http://*:9999");
         var app = builder.Build();
         app.Services.GetService<ChatRepository>()!.ExecuteRebuildFromSqlScript();
         var port = Environment.GetEnvironmentVariable(ENV_VAR_KEYS.PORT.ToString()) ?? "8181";
