@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using System.Security.Authentication;
+using System.Text.Json;
 using Api.Helpers.cs;
 using Api.Models.ServerEvents;
 using Api.Repositories;
@@ -26,6 +27,7 @@ public static class Startup
             .WriteTo.Console(
                 outputTemplate: "\n{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}\n")
             .CreateLogger();
+        Log.Information(JsonSerializer.Serialize(Environment.GetEnvironmentVariables()));
         EnvSetup.SetupEnv();
 
         var builder = WebApplication.CreateBuilder(args);
