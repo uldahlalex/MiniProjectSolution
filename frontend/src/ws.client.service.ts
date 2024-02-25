@@ -10,7 +10,7 @@ import {ServerSendsErrorMessageToClient} from "./models/serverSendsErrorMessageT
 import {ServerNotifiesClientsInRoomSomeoneHasJoinedRoom} from "./models/serverNotifiesClientsInRoomSomeoneHasJoinedRoom";
 import {Message, Room} from "./models/entities";
 import {ServerSendsImageAnalysisToClient} from "./models/ServerSendsImageAnalysisToClient";
-import {environment} from "../environments/environment";
+import {environment} from "./environments/environment";
 
 @Injectable({providedIn: 'root'})
 export class WebSocketClientService {
