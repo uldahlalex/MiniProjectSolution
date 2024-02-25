@@ -34,7 +34,7 @@ public class ClientWantsToDetectImageObjects : BaseEventHandler<ClientWantsToDet
                        "https://uldahlvision.cognitiveservices.azure.com/vision/v3.2/analyze?language=en&model-version=latest"))
             {
                 request.Headers.TryAddWithoutValidation("accept", "application/json");
-                request.Headers.TryAddWithoutValidation("Ocp-Apim-Subscription-Key", Environment.GetEnvironmentVariable(ENV_VAR_KEYS.HD_AZ_VISION.ToString())); 
+                request.Headers.TryAddWithoutValidation("Ocp-Apim-Subscription-Key", Environment.GetEnvironmentVariable(ENV_VAR_KEYS.AZ_VISION.ToString())); 
 
                 request.Content = new StringContent(JsonSerializer.Serialize(visionRequest));
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");

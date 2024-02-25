@@ -70,7 +70,7 @@ public class ClientWantsToSendMessageToRoom(
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "https://toxicityfilter.cognitiveservices.azure.com/contentsafety/text:analyze?api-version=2023-10-01");
 
         request.Headers.Add("accept", "application/json");
-        request.Headers.Add("Ocp-Apim-Subscription-Key", Environment.GetEnvironmentVariable(ENV_VAR_KEYS.HD_AZ_CONTENT_FILTER.ToString()));
+        request.Headers.Add("Ocp-Apim-Subscription-Key", Environment.GetEnvironmentVariable(ENV_VAR_KEYS.AZ_CONTENT_FILTER.ToString()));
 
         var req = new RequestModel(message, new List<string>() { "Hate", "Violence" }, "FourSeverityLevels");
 

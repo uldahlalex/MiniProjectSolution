@@ -6,10 +6,10 @@ public enum ENV_VAR_KEYS
 {
     ASPNETCORE_ENVIRONMENT,
     PORT,
-    HD_AZ_VISION,
-    HD_AZ_CONTENT_FILTER,
-    HD_JWT_KEY,
-    HD_PG_CONN
+    AZ_VISION,
+    AZ_CONTENT_FILTER,
+    JWT_KEY,
+    PG_CONN
 }
 
 public class EnvSetup
