@@ -13,6 +13,7 @@ jobs:
       - run: cd frontend && npm i && ng build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
+          entryPoint: 'frontend'
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_EASVCHAT }}'
           projectId: easvchat
