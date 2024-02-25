@@ -10,7 +10,7 @@ jobs:
         with:
           node-version: 20
       - run: npm i -g @angular/cli@17
-      - run: cd frontend && ng build
+      - run: cd frontend && npm i && ng build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
