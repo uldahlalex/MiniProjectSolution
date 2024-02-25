@@ -5,6 +5,7 @@ namespace Api.Helpers.cs;
 public enum ENV_VAR_KEYS
 {
     ASPNETCORE_ENVIRONMENT,
+    PORT,
     HD_AZ_VISION,
     HD_AZ_CONTENT_FILTER,
     HD_JWT_KEY,

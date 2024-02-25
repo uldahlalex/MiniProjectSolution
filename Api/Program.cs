@@ -42,7 +42,8 @@ public static class Startup
 
         var app = builder.Build();
         app.Services.GetService<ChatRepository>()!.ExecuteRebuildFromSqlScript();
-        var server = new WebSocketServer("ws://0.0.0.0:8181");
+        var port = Environment.GetEnvironmentVariable(ENV_VAR_KEYS.PORT.ToString()) ?? "8181";
+        var server = new WebSocketServer("ws://0.0.0.0:"+port);
         server.RestartAfterListenError = true;
         server.Start(socket =>
         {
