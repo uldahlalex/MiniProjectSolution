@@ -10,6 +10,7 @@ import {ServerSendsErrorMessageToClient} from "./models/serverSendsErrorMessageT
 import {ServerNotifiesClientsInRoomSomeoneHasJoinedRoom} from "./models/serverNotifiesClientsInRoomSomeoneHasJoinedRoom";
 import {Message, Room} from "./models/entities";
 import {ServerSendsImageAnalysisToClient} from "./models/ServerSendsImageAnalysisToClient";
+import {environment} from "../environments/environment";
 
 @Injectable({providedIn: 'root'})
 export class WebSocketClientService {
@@ -22,7 +23,7 @@ export class WebSocketClientService {
   public socketConnection: WebsocketSuperclass;
 
   constructor(public messageService: MessageService) {
-    this.socketConnection = new WebsocketSuperclass("ws://localhost:8181");
+    this.socketConnection = new WebsocketSuperclass(environment.websocketBaseUrl);
     this.handleEventsEmittedByTheServer()
   }
 
