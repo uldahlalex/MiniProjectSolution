@@ -19,7 +19,7 @@ jobs:
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
           usedocker: false
           appdir: "Api"
-        env:
+        env: #only the key names below should be prefixed HD_ and the ${{secrets.NAME}} should not
           HD_AZ_VISION: ${{secrets.AZ_VISION}}
           HD_AZ_CONTENT_FILTER: ${{secrets.AZ_CONTENT_FILTER}}
           HD_JWT_KEY: ${{secrets.JWT_KEY_}}

@@ -12,7 +12,7 @@ jobs:
           dotnet-version: 8.0.x
       - run: cd Tests && dotnet test
         env:
-            HD_AZ_VISION: ${{secrets.AZ_VISION}}
-            HD_AZ_CONTENT_FILTER: ${{secrets.AZ_CONTENT_FILTER}}
-            HD_JWT_KEY: ${{secrets.JWT_KEY_}}
-            HD_PG_CONN: ${{secrets.PG_CONN}}
+            AZ_VISION: ${{secrets.AZ_VISION}}
+            AZ_CONTENT_FILTER: ${{secrets.AZ_CONTENT_FILTER}}
+            JWT_KEY: ${{secrets.JWT_KEY_}}
+            PG_CONN: ${{secrets.PG_CONN}}
