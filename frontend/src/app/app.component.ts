@@ -29,10 +29,7 @@ import {ClientWantsToDetectImageObjects} from "../models/clientWantsToDetectImag
       <input [formControl]="messageContent"><button (click)="sendMessageToRoom(m.key)">Send message</button>
     </div>
 
-    <h1>Enter an image url to analyze</h1>
-    <input [formControl]="imgUrl">
-    <img style="max-height: 150px; width: auto;" [src]="imgUrl.value">
-    <button (click)="analyzeImage()">Analyze it!</button>
+<app-image-detection></app-image-detection>
 
   `,
 })

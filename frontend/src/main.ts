@@ -9,6 +9,7 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {CommonModule} from "@angular/common";
 import {platformBrowserDynamic} from "@angular/platform-browser-dynamic";
 import {MessageService} from "primeng/api";import {AppComponent} from "./app/app.component";
+import {ImageDetectionComponent} from "./app/image.detection.component";
 
 
 @NgModule({
@@ -23,6 +24,7 @@ import {MessageService} from "primeng/api";import {AppComponent} from "./app/app
 
   ],
   declarations: [
+    ImageDetectionComponent,
     AppComponent
   ],
   providers: [MessageService, ],

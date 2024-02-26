@@ -31,7 +31,7 @@ public class ClientWantsToDetectImageObjects : BaseEventHandler<ClientWantsToDet
         using (var httpClient = new HttpClient())
         {
             using (var request = new HttpRequestMessage(new HttpMethod("POST"), 
-                       "https://uldahlvision.cognitiveservices.azure.com/vision/v3.2/analyze?language=en&model-version=latest"))
+                       "https://uldahlvision.cognitiveservices.azure.com/vision/v3.2/detect?language=en&model-version=latest"))
             {
                 request.Headers.TryAddWithoutValidation("accept", "application/json");
                 request.Headers.TryAddWithoutValidation("Ocp-Apim-Subscription-Key", Environment.GetEnvironmentVariable(ENV_VAR_KEYS.AZ_VISION.ToString())); 
@@ -54,12 +54,6 @@ public class VisionRequest
     public string url { get; set; }
 }
 
-public class Category
-{
-    public string name { get; set; }
-    public double score { get; set; }
-}
-
 public class Metadata
 {
     public int height { get; set; }
@@ -67,11 +61,32 @@ public class Metadata
     public string format { get; set; }
 }
 
+public class Object
+{
+    public Rectangle rectangle { get; set; }
+    public string @object { get; set; }
+    public double confidence { get; set; }
+    public Parent parent { get; set; }
+}
+
+public class Parent
+{
+    public string @object { get; set; }
+    public double confidence { get; set; }
+}
+
+public class Rectangle
+{
+    public int x { get; set; }
+    public int y { get; set; }
+    public int w { get; set; }
+    public int h { get; set; }
+}
+
 public class VisionResponse
 {
-    public List<Category> categories { get; set; }
+    public List<Object> objects { get; set; }
     public string requestId { get; set; }
     public Metadata metadata { get; set; }
     public string modelVersion { get; set; }
 }
-
