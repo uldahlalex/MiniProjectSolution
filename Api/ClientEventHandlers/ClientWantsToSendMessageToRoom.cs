@@ -78,7 +78,8 @@ public class ClientWantsToSendMessageToRoom(
         request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
         HttpResponseMessage response = await client.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        if(!response.IsSuccessStatusCode)
+            throw new Exception("Wait a moment - we've used all the free requests for this minute");
         string responseBody = await response.Content.ReadAsStringAsync();
         var obj = JsonSerializer.Deserialize<ContentFilterResponse>(responseBody);
         var isToxic = obj.categoriesAnalysis.Count(e => e.severity > 1) >= 1;
