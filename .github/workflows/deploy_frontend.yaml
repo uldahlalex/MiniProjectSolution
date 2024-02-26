@@ -11,7 +11,7 @@ jobs:
         with:
           node-version: 20
       - run: npm i -g @angular/cli@17
-      - run: cd frontend && npm i && ng build
+      - run: cd frontend && npm i && ng build --optimization=false
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           channelId: live
