@@ -11,6 +11,7 @@
       "prefix": "app",
       "architect": {
         "build": {
+
           "builder": "@angular-devkit/build-angular:application",
           "options": {
             "outputPath": "dist/frontend",
@@ -51,8 +52,7 @@
                   "maximumError": "4kb"
                 }
               ],
-              "outputHashing": "all",
-              "optimization": false
+              "outputHashing": "all"
             },
             "development": {
               "optimization": false,
