@@ -33,7 +33,7 @@ export class ImageDetectionComponent implements OnInit {
   private ctx: CanvasRenderingContext2D;
 
   imgUrl = new FormControl(
-    "https://ibb.co/yX8gSZG");
+    "https://i.ibb.co/R9CQysZ/image-2.png");
 
   drawObjects(imageObjects: Object[]): void {
     this.ctx = this.canvas.nativeElement.getContext('2d')!;
