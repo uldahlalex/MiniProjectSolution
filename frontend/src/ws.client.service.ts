@@ -11,7 +11,7 @@ import {ServerNotifiesClientsInRoomSomeoneHasJoinedRoom} from "./models/serverNo
 import {Message, Room} from "./models/entities";
 import {ServerSendsImageAnalysisToClient} from "./models/imageDetectionModels";
 import {environment} from "./environments/environment";
-import {Result} from "./models/imageDetectionModels";
+import {AnalysisResult} from "./models/imageDetectionModels";
 
 @Injectable({providedIn: 'root'})
 export class WebSocketClientService {
@@ -71,7 +71,7 @@ export class WebSocketClientService {
     this.messageService.add({life: 2000, severity: 'error', summary: '⚠️', detail: dto.errorMessage}); //todo implement with err handler
   }
 
-  public onImageAnalysisReceived: EventEmitter<Result> = new EventEmitter();
+  public onImageAnalysisReceived: EventEmitter<AnalysisResult> = new EventEmitter();
   ServerSendsImageAnalysisToClient(dto: ServerSendsImageAnalysisToClient) {
     this.onImageAnalysisReceived.emit(dto.result!);
   }

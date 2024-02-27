@@ -1,10 +1,10 @@
 import {BaseDto} from "./baseDto";
 
 export class ServerSendsImageAnalysisToClient extends BaseDto<ServerSendsImageAnalysisToClient> {
-  result?: Result
+  result?: AnalysisResult
 }
 
-export interface Result {
+export interface AnalysisResult {
   objects?: Object[]
   requestId?: string
   metadata?: Metadata

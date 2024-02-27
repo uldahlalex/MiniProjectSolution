@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, ElementRef, inject, Inject, OnInit, ViewChild} from "@angular/core";
 import {WebSocketClientService} from "../ws.client.service";
 import {FormControl} from "@angular/forms";
-import {Object, Result} from "../models/imageDetectionModels";
+import {Object, AnalysisResult} from "../models/imageDetectionModels";
 import {ClientWantsToDetectImageObjects} from "../models/clientWantsToDetectImageObjects";
 
 @Component({
@@ -19,13 +19,11 @@ import {ClientWantsToDetectImageObjects} from "../models/clientWantsToDetectImag
 export class ImageDetectionComponent implements OnInit {
 
   ngOnInit() {
-    this.ws.onImageAnalysisReceived.subscribe((imageObjects: Result) => {
-      this.imageObjects = imageObjects.objects!;
-      this.drawObjects();
+    this.ws.onImageAnalysisReceived.subscribe((imageObjects: AnalysisResult) => {
+      this.drawObjects(imageObjects.objects!);
     });
   }
 
-  public imageObjects: Object[] = [];
 
   public ws: WebSocketClientService = inject(WebSocketClientService);
 
@@ -34,11 +32,10 @@ export class ImageDetectionComponent implements OnInit {
   //@ts-ignore
   private ctx: CanvasRenderingContext2D;
 
-  imgUrl = new FormControl("https://variety.com/wp-content/uploads/2021/07/Rick-Astley-Never-Gonna-Give-You-Up.png");
+  imgUrl = new FormControl(
+    "https://ibb.co/yX8gSZG");
 
-
-
-  img(): void {
+  drawObjects(imageObjects: Object[]): void {
     this.ctx = this.canvas.nativeElement.getContext('2d')!;
     const img = new Image();
     img.src = this.imgUrl.value!;
@@ -46,24 +43,20 @@ export class ImageDetectionComponent implements OnInit {
       this.canvas.nativeElement.width = img.width;
       this.canvas.nativeElement.height = img.height;
       this.ctx.drawImage(img, 0, 0, img.width, img.height);
-      this.drawObjects();
+      imageObjects.forEach(obj => {
+        this.ctx.beginPath();
+        this.ctx.rect(obj.rectangle.x, obj.rectangle.y, obj.rectangle.w, obj.rectangle.h);
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeStyle = 'red';
+        this.ctx.fillStyle = 'red';
+        this.ctx.stroke();
+        this.ctx.fillText(obj.object, obj.rectangle.x, obj.rectangle.y > 20 ? obj.rectangle.y - 5 : 15);
+      });
     };
-  }
 
-  drawObjects(): void {
-    this.imageObjects.forEach(obj => {
-      this.ctx.beginPath();
-      this.ctx.rect(obj.rectangle.x, obj.rectangle.y, obj.rectangle.w, obj.rectangle.h);
-      this.ctx.lineWidth = 3;
-      this.ctx.strokeStyle = 'red';
-      this.ctx.fillStyle = 'red';
-      this.ctx.stroke();
-      this.ctx.fillText(obj.object, obj.rectangle.x, obj.rectangle.y > 20 ? obj.rectangle.y - 5 : 15);
-    });
   }
 
   analyzeImage() {
-    this.img();
     this.ws.socketConnection.sendDto(new ClientWantsToDetectImageObjects({url: this.imgUrl.value!}));
   }
 }
