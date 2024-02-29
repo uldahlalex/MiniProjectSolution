@@ -1,6 +1,7 @@
 import {BaseDto} from "./baseDto";
 import {ClientWantsToAuthenticateWithJwt} from "./clientWantsToAuthenticateWithJwt";
 import ReconnectingWebSocket from "reconnecting-websocket";
+import {error} from "@angular/compiler-cli/src/transformers/util";
 
 export class WebsocketSuperclass extends ReconnectingWebSocket {
   private messageQueue: Array<BaseDto<any>> = [];
