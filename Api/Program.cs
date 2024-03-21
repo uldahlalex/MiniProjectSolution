@@ -36,6 +36,7 @@ public static class Startup
         builder.Services.AddNpgsqlDataSource(ChatRepository.ProperlyFormattedConnectionString,
             sourceBuilder => { sourceBuilder.EnableParameterLogging(); });
         builder.Services.AddSingleton<ChatRepository>();
+        builder.Services.AddSingleton<MQTTClientService>();
         var services = builder.FindAndInjectClientEventHandlers(Assembly.GetExecutingAssembly());
 
         builder.WebHost.UseUrls("http://*:9999");
@@ -73,6 +74,7 @@ public static class Startup
                 }
             };
         });
+        app.Services.GetService<MQTTClientService>().CommunicateWithBroker();
         return app;
     }
 }

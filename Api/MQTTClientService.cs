@@ -12,7 +12,7 @@ using MQTTnet.Formatter;
 
 namespace Api;
 
-public class MQTTClient(ChatRepository chatRepository)
+public class MQTTClientService(ChatRepository chatRepository)
 {
     public async Task CommunicateWithBroker()
     {
@@ -38,6 +38,7 @@ public class MQTTClient(ChatRepository chatRepository)
             try
             {
                 var message = e.ApplicationMessage.ConvertPayloadToString();
+                Console.WriteLine("Received message: " + message);
                 var ts = JsonSerializer.Deserialize<MqttClientWantsToSendMessageToRoom>(message);
                 var timestamp = DateTimeOffset.UtcNow;
                 var insertionResult = chatRepository.InsertMessage(new InsertMessageParams(ts.message, timestamp, ts.sender, 1));
