@@ -1,9 +1,0 @@
-The recipe:
-
-1. Find service to solve problem (On Azure Portal)
-2. Find Swagger documentation (.json) and paste on SwaggerEditor
-3. Fill in your values and test on SwaggerEditor
-4. Copy cURL command and convert to C#
-5. Use and modify in codebase
-    5a. Add request and response models (JSON to C# converter can be used)
-    5b. Add API key as environment variable (don't forget to add repository secret on Github for your Actions workflow runner)

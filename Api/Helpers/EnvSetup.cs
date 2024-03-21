@@ -9,5 +9,5 @@ public enum ENV_VAR_KEYS
     AZ_VISION,
     AZ_CONTENT_FILTER,
     JWT_KEY,
-    PG_CONN
+    PGCONN
 }
