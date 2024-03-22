@@ -39,17 +39,17 @@ public class MQTTClientService(ChatRepository chatRepository)
             {
                 var message = e.ApplicationMessage.ConvertPayloadToString();
                 Console.WriteLine("Received message: " + message);
-                var ts = JsonSerializer.Deserialize<MqttClientWantsToSendMessageToRoom>(message);
+                var messageObject = JsonSerializer.Deserialize<MqttClientWantsToSendMessageToRoom>(message);
                 var timestamp = DateTimeOffset.UtcNow;
-                var insertionResult = chatRepository.InsertMessage(new InsertMessageParams(ts.message, timestamp, ts.sender, 1));
-
+                var insertionResult = chatRepository.InsertMessage(new InsertMessageParams(
+                    messageObject.message, timestamp, messageObject.sender, 1));
                 WebSocketStateService.BroadcastMessage(1, new ServerBroadcastsMessageToClientsInRoom()
                 {
                     message = new MessageWithSenderEmail()
                     {
-                        sender = ts.sender,
+                        sender = messageObject.sender,
                         timestamp = timestamp,
-                        messageContent = ts.message,
+                        messageContent = messageObject.message,
                         room = 1,
                         email = "mqtt client",
                         id = insertionResult.id
